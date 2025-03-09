@@ -1,55 +1,82 @@
-// import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
-import React from "react";
-// import "./index.css";
+import React, { useEffect, useState } from "react";
+import Search from "./components/Search.jsx";
+import Spinner from "./components/Spinner.jsx";
+import MovieCard from "./components/MovieCard.jsx";
 
-// function App() {
-//   const [count, setCount] = useState(0)
-
-//   return (
-//     <>
-//       <div>
-//         <a href="https://vite.dev" target="_blank">
-//           <img src={viteLogo} className="logo" alt="Vite logo" />
-//         </a>
-//         <a href="https://react.dev" target="_blank">
-//           <img src={reactLogo} className="logo react" alt="React logo" />
-//         </a>
-//       </div>
-//       <h1>Vite + React</h1>
-//       <div className="card">
-//         <button onClick={() => setCount((count) => count + 1)}>
-//           count is {count}
-//         </button>
-//         <p>
-//           Edit <code>src/App.jsx</code> and save to test HMR
-//         </p>
-//       </div>
-//       <p className="read-the-docs">
-//         Click on the Vite and React logos to learn more
-//       </p>
-//     </>
-//   )
-// }
-
-// export default App
+const API_BASE_URL = "https://api.themoviedb.org/3";
+const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+// console.log(API_KEY);
+const API_OPTIONS = {
+  method: "GET",
+  headers: {
+    accept: "application/json",
+    Authorization: `Bearer ${API_KEY}`,
+  },
+};
 
 const App = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [movies, setMovies] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchMovies = async () => {
+    setIsLoading(true);
+    setErrorMessage("");
+    try {
+      const endpoint = `${API_BASE_URL}/discover/movie`;
+
+      const response = await fetch(endpoint, API_OPTIONS);
+      if (!response.ok) {
+        throw new Error(`Failed fetch`);
+      }
+      const data = await response.json();
+      if (data.Response === "false") {
+        setErrorMessage(data.Error || "Failed to fetch movies");
+        setMovies([]);
+        return;
+      }
+      setMovies(data.results || []);
+    } catch (err) {
+      console.error("Error fetching movies:", err);
+      return;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMovies();
+  }, [searchTerm]);
   return (
     <main>
-      <div className="pattern"/>
+      <div className="pattern" />
       <div className="wrapper">
+        <header>
+          <img src="./hero-img.png" alt="Hero Banner" />
 
+          <h1>
+            Find Out <span className="text-gradient">Movies</span> You'll Enjoy
+            Without The Hassle
+          </h1>
+          <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        </header>
+        <section>
+          <h2 className="mt-[20px]">All Movies</h2>
+          <Spinner />
 
-        <img src="./hero-img.png" alt="Hero Banner" />
-
-        <h1>
-          Find Out <span className="text-gradient">
-            Movies 
-          </span> You'll Enjoy Without The Hassle
-        </h1>
-        <p className="">Search</p>
+          {isLoading ? (
+            <p className="text-white">Loading...</p>
+          ) : errorMessage ? (
+            <p className="text-white">{errorMessage}</p>
+          ) : (
+            <ul>
+              {movies.map((movie) => (
+                <MovieCard key={movie.id} movie={movie} />
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
     </main>
   );

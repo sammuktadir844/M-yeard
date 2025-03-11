@@ -8,15 +8,14 @@ const MovieCard = ({movie: {title, vote_average, poster_path, release_date, orig
         <h3>{title}</h3>
         <div className="content">
             <div className="rating">
-                <img src="rating.svg" alt="star icon" />
+                <img src="Rating.svg" alt="star icon" />
                 <p> {vote_average ? vote_average.toFixed(1): 'N/A'} </p>
             </div>
             <span>.</span>
             <p className="lang" >{original_language}</p>
             <span>.</span>
-            <p className="Year" >{release_date ? release_date.split('-')[0]:'N/A'}</p>
-            <span>.</span>
-            <p className="lang" >{original_language}</p>
+            <p className="Year text-white" >{release_date ? release_date.split('-')[0]:'N/A'}</p>
+            
         </div>
 
       </div>

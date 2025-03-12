@@ -47,7 +47,9 @@ const App = () => {
       }
       setMovies(data.results || []);
 
-      updateCount();
+      if (query && data.results.length > 0) {
+        await updateCount(query, data.results[0]);
+      }
     } catch (err) {
       console.error("Error fetching movies:", err);
       return;
@@ -55,6 +57,7 @@ const App = () => {
       setIsLoading(false);
     }
   };
+  
   const loadTrendingMovies = async () => {
     try {
       const movies = await getTrendingMovies();

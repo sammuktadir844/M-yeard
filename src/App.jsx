@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Search from "./components/Search.jsx";
 import Spinner from "./components/Spinner.jsx";
+import Modal from "./components/Modal.jsx";
 import MovieCard from "./components/MovieCard.jsx";
 import { useDebounce } from "react-use";
 import { getTrendingMovies, updateCount } from "./Appwrite.js";
@@ -23,6 +24,7 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [debounceSearchTerm, setDebounceSearchTerm] = useState("");
   const [trendingMovies, setTrendingMovies] = useState([]);
+  const [selectedMovie, setSelectedMovie] = useState(null);
 
   useDebounce(() => setDebounceSearchTerm(searchTerm), 700, [searchTerm]);
 
@@ -57,7 +59,7 @@ const App = () => {
       setIsLoading(false);
     }
   };
-  
+
   const loadTrendingMovies = async () => {
     try {
       const movies = await getTrendingMovies();
@@ -115,8 +117,17 @@ const App = () => {
           ) : (
             <ul>
               {movies.map((movie) => (
-                <MovieCard key={movie.id} movie={movie} />
+                <MovieCard
+                  key={movie.id}
+                  movie={movie}
+                  onClick={setSelectedMovie}
+                />
               ))}
+              <Modal
+                isOpen={!!selectedMovie}
+                onClose={() => setSelectedMovie(null)}
+                movie={selectedMovie}
+              />
             </ul>
           )}
         </section>
